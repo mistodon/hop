@@ -27,34 +27,28 @@ def save_bookmarks(bookmarks):
     with open(apath, "w") as outfile:
         json.dump(bookmarks, outfile, sort_keys=True)
 
-def hop_to(args):
-    bookmarks = load_bookmarks()
+def hop_to(bookmarks, args):
     path = bookmarks.get(args.bookmark_name)
     if path:
         return (True, path)
     else:
         return (False, "No bookmark found named '{0}'".format(args.bookmark_name))
 
-def hop_add(args):
-    bookmarks = load_bookmarks()
+def hop_add(bookmarks, args):
     path = os.getcwd()
     bookmarks[args.bookmark_name] = path
-    save_bookmarks(bookmarks)
     return (False, "Added bookmark: {0}".format(show_bookmark(args.bookmark_name, path)))
 
-def hop_remove(args):
-    bookmarks = load_bookmarks()
+def hop_remove(bookmarks, args):
     path = os.getcwd()
     bookmarks.pop(args.bookmark_name)
-    save_bookmarks(bookmarks)
     return (False, "Removed bookmark: {0}".format(show_bookmark(args.bookmark_name, path)))
 
-def hop_list(args):
+def hop_list(bookmarks, args):
     search = args.search_term
     match_case = args.case_sensitive
     name_only = args.name_only
     path_only = args.path_only
-    bookmarks = load_bookmarks()
     bookmark_list = sorted(bookmarks.items())
     filtered = [item for item in bookmark_list
                 if in_search(item[0], item[1], search, match_case, name_only, path_only)]
@@ -105,7 +99,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if "func" in args:
-        change_dir, stdout_text = args.func(args)
+        bookmarks = load_bookmarks()
+        change_dir, stdout_text = args.func(bookmarks, args)
+        save_bookmarks(bookmarks)
         if change_dir:
             print(CHANGE_DIRECTORY_CODE + stdout_text)
         else:
