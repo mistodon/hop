@@ -58,8 +58,6 @@ def hop_list(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hop to a bookmarked directory")
-    parser.set_defaults(func=lambda args: parser.print_help())
-
     subparsers = parser.add_subparsers()
 
     to_command = subparsers.add_parser("to", help="hop to a bookmark")
@@ -81,4 +79,7 @@ if __name__ == "__main__":
     list_command.set_defaults(func=hop_list)
 
     args = parser.parse_args()
-    args.func(args)
+    if "func" in args:
+        args.func(args)
+    else:
+        parser.print_help()
