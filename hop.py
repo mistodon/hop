@@ -56,9 +56,11 @@ def hop_list(args):
     path_only = args.path_only
     bookmarks = load_bookmarks()
     bookmark_list = sorted(bookmarks.items())
-    for bookmark, path in bookmark_list:
-        if in_search(bookmark, path, search, match_case, name_only, path_only):
-            print("{0} --> {1}".format(bookmark, path))
+    filtered = [item for item in bookmark_list
+                if in_search(item[0], item[1], search, match_case, name_only, path_only)]
+    print("total {0}".format(len(filtered)))
+    for bookmark, path in filtered:
+        print("{0} --> {1}".format(bookmark, path))
 
 def in_search(bookmark, path, search, match_case, name_only, path_only):
         bookmark = bookmark if match_case else bookmark.lower()
