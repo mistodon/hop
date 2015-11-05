@@ -1,11 +1,13 @@
 #!/bin/bash
 
 function hop() {
-    if [[ $1 == "list" || $1 == "-h" || $1 == "" ]]
+    result=$(python ~/bin/hop/hop.py "$@")
+    firstchar=${result:0:1}
+    if [[ $firstchar == "0" ]]
     then
-        python ~/bin/hop/hop.py "$@"
+        newwd=${result:1}
+        cd $newwd
     else
-        path=$(python ~/bin/hop/hop.py "$@")
-        cd $path
+        echo "$result"
     fi
 }

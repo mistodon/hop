@@ -3,6 +3,9 @@ import os
 import json
 
 
+CHANGE_DIRECTORY_CODE = "0"
+
+
 def get_bookmark_file_path(file_path="~/.hop/bookmarks.json"):
     apath = os.path.abspath(os.path.expanduser(file_path))
     dirs, fname = os.path.split(apath)
@@ -28,21 +31,23 @@ def hop_to(args):
     bookmarks = load_bookmarks()
     path = bookmarks.get(args.bookmark_name)
     if path:
-        print(path)
+        print(CHANGE_DIRECTORY_CODE + path)
+    else:
+        print("No bookmark found named '{0}'".format(args.bookmark_name))
 
 def hop_add(args):
     bookmarks = load_bookmarks()
     path = os.getcwd()
     bookmarks[args.bookmark_name] = path
     save_bookmarks(bookmarks)
-    print(".")
+    print(CHANGE_DIRECTORY_CODE + ".")
 
 def hop_remove(args):
     bookmarks = load_bookmarks()
     path = os.getcwd()
     bookmarks.pop(args.bookmark_name)
     save_bookmarks(bookmarks)
-    print(".")
+    print(CHANGE_DIRECTORY_CODE + ".")
 
 def hop_list(args):
     bookmarks = load_bookmarks()
@@ -53,6 +58,8 @@ def hop_list(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hop to a bookmarked directory")
+    parser.set_defaults(func=lambda args: parser.print_help())
+
     subparsers = parser.add_subparsers()
 
     to_command = subparsers.add_parser("to", help="hop to a bookmark")
