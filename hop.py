@@ -50,10 +50,23 @@ def hop_remove(args):
     print(CHANGE_DIRECTORY_CODE + ".")
 
 def hop_list(args):
+    search = args.search_term
+    match_case = args.case_sensitive
+    name_only = args.name_only
+    path_only = args.path_only
     bookmarks = load_bookmarks()
     bookmark_list = sorted(bookmarks.items())
     for bookmark, path in bookmark_list:
-        print("{0} --> {1}".format(bookmark, path))
+        if in_search(bookmark, path, search, match_case, name_only, path_only):
+            print("{0} --> {1}".format(bookmark, path))
+
+def in_search(bookmark, path, search, match_case, name_only, path_only):
+        bookmark = bookmark if match_case else bookmark.lower()
+        path = path if match_case else path.lower()
+        search = search if match_case else search.lower()
+        in_name = search in bookmark and not path_only
+        in_path = search in path and not name_only
+        return in_name or in_path
 
 
 if __name__ == "__main__":
@@ -76,6 +89,14 @@ if __name__ == "__main__":
     remove_command.set_defaults(func=hop_remove)
 
     list_command = subparsers.add_parser("list", help="list all bookmarks")
+    list_command.add_argument("search_term", type=str, default="", nargs="?",
+        help="show only bookmarks containing this term")
+    list_command.add_argument("-c", "--case-sensitive", action="store_true",
+        help="match case in search results")
+    list_command.add_argument("-n", "--name-only", action="store_true",
+        help="search bookmark names only")
+    list_command.add_argument("-p", "--path-only", action="store_true",
+        help="search bookmark paths only")
     list_command.set_defaults(func=hop_list)
 
     args = parser.parse_args()
