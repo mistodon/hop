@@ -9,19 +9,19 @@ def get_bookmark_file_path(file_path="~/.hop/bookmarks.json"):
     if not os.path.exists(dirs):
         os.makedirs(dirs)
     if not os.path.exists(apath):
-        with open(apath, "w", encoding="utf-8") as f:
+        with open(apath, "w") as f:
             json.dump({}, f)
     return apath
 
 def load_bookmarks():
     apath = get_bookmark_file_path()
-    with open(apath, "r", encoding="utf-8") as infile:
+    with open(apath, "r") as infile:
         bookmarks = json.load(infile)
     return bookmarks
 
 def save_bookmarks(bookmarks):
     apath = get_bookmark_file_path()
-    with open(apath, "w", encoding="utf-8") as outfile:
+    with open(apath, "w") as outfile:
         json.dump(bookmarks, outfile, sort_keys=True)
 
 def hop_to(args):
