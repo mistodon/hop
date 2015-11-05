@@ -1,6 +1,6 @@
 Hop
 ===
-Bookmarking directories for your terminal.
+Let's you bookmark directories from your terminal and `cd` straight to them using a shorthand name.
 
 Installation
 ------------
