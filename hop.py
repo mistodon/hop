@@ -63,9 +63,8 @@ def hop_list(args):
         print("{0} --> {1}".format(bookmark, path))
 
 def in_search(bookmark, path, search, match_case, name_only, path_only):
-        bookmark = bookmark if match_case else bookmark.lower()
-        path = path if match_case else path.lower()
-        search = search if match_case else search.lower()
+        if not match_case:
+            (search, bookmark, path) = (s.lower() for s in (search, bookmark, path))
         in_name = search in bookmark and not path_only
         in_path = search in path and not name_only
         return in_name or in_path
