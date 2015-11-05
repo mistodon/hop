@@ -31,23 +31,23 @@ def hop_to(args):
     bookmarks = load_bookmarks()
     path = bookmarks.get(args.bookmark_name)
     if path:
-        print(CHANGE_DIRECTORY_CODE + path)
+        return (True, path)
     else:
-        print("No bookmark found named '{0}'".format(args.bookmark_name))
+        return (False, "No bookmark found named '{0}'".format(args.bookmark_name))
 
 def hop_add(args):
     bookmarks = load_bookmarks()
     path = os.getcwd()
     bookmarks[args.bookmark_name] = path
     save_bookmarks(bookmarks)
-    print(CHANGE_DIRECTORY_CODE + ".")
+    return (False, "Added bookmark: {0}".format(show_bookmark(args.bookmark_name, path)))
 
 def hop_remove(args):
     bookmarks = load_bookmarks()
     path = os.getcwd()
     bookmarks.pop(args.bookmark_name)
     save_bookmarks(bookmarks)
-    print(CHANGE_DIRECTORY_CODE + ".")
+    return (False, "Removed bookmark: {0}".format(show_bookmark(args.bookmark_name, path)))
 
 def hop_list(args):
     search = args.search_term
@@ -58,9 +58,12 @@ def hop_list(args):
     bookmark_list = sorted(bookmarks.items())
     filtered = [item for item in bookmark_list
                 if in_search(item[0], item[1], search, match_case, name_only, path_only)]
-    print("total {0}".format(len(filtered)))
-    for bookmark, path in filtered:
-        print("{0} --> {1}".format(bookmark, path))
+    report = "total {0}\n".format(len(filtered))
+    report += "\n".join(show_bookmark(bookmark, path) for bookmark, path in filtered)
+    return (False, report)
+
+def show_bookmark(bookmark, path):
+    return "{0} --> {1}".format(bookmark, path)
 
 def in_search(bookmark, path, search, match_case, name_only, path_only):
         if not match_case:
@@ -102,6 +105,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     if "func" in args:
-        args.func(args)
+        change_dir, stdout_text = args.func(args)
+        if change_dir:
+            print(CHANGE_DIRECTORY_CODE + stdout_text)
+        else:
+            print(stdout_text)
     else:
         parser.print_help()
