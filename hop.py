@@ -6,14 +6,25 @@ import json
 CHANGE_DIRECTORY_CODE = "0"
 
 
+def ensure_directory(path):
+    apath = os.path.abspath(os.path.expanduser(path))
+    if not os.path.exists(apath):
+        os.makedirs(apath)
+    return apath
+
 def get_bookmark_file_path(file_path="~/.hop/bookmarks.json"):
-    apath = os.path.abspath(os.path.expanduser(file_path))
-    dirs, fname = os.path.split(apath)
-    if not os.path.exists(dirs):
-        os.makedirs(dirs)
+    dirs, fname = os.path.split(file_path)
+    dirpath = ensure_directory(dirs)
+    apath = os.path.join(dirpath, fname)
     if not os.path.exists(apath):
         with open(apath, "w") as f:
             json.dump({}, f)
+    return apath
+
+def get_short_names_file_path(file_path="~/.hop/shortnames"):
+    dirs, fname = os.path.split(file_path)
+    dirpath = ensure_directory(dirs)
+    apath = os.path.join(dirpath, fname)
     return apath
 
 def load_bookmarks():
@@ -26,6 +37,9 @@ def save_bookmarks(bookmarks):
     apath = get_bookmark_file_path()
     with open(apath, "w") as outfile:
         json.dump(bookmarks, outfile, sort_keys=True)
+    shortfile = get_short_names_file_path()
+    with open(shortfile, "w") as outfile:
+        outfile.write(" ".join(bookmarks.keys()))
 
 def hop_to(bookmarks, args):
     path = bookmarks.get(args.bookmark_name)
