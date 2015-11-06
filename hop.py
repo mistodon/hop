@@ -47,13 +47,16 @@ def hop_remove(bookmarks, args):
 def hop_list(bookmarks, args):
     search = args.search_term
     match_case = args.case_sensitive
-    name_only = args.name_only
+    name_only = args.name_only or args.short
     path_only = args.path_only
     bookmark_list = sorted(bookmarks.items())
     filtered = [item for item in bookmark_list
                 if in_search(item[0], item[1], search, match_case, name_only, path_only)]
-    report = "total {0}\n".format(len(filtered))
-    report += "\n".join(show_bookmark(bookmark, path) for bookmark, path in filtered)
+    if args.short:
+        report = " ".join(name for name, path in filtered)
+    else:
+        report = "total {0}\n".format(len(filtered))
+        report += "\n".join(show_bookmark(bookmark, path) for bookmark, path in filtered)
     return (False, report)
 
 def show_bookmark(bookmark, path):
@@ -91,6 +94,8 @@ if __name__ == "__main__":
         help="show only bookmarks containing this term")
     list_command.add_argument("-c", "--case-sensitive", action="store_true",
         help="match case in search results")
+    list_command.add_argument("-s", "--short", action="store_true",
+        help="show a short list of bookmarks")
     list_command.add_argument("-n", "--name-only", action="store_true",
         help="search bookmark names only")
     list_command.add_argument("-p", "--path-only", action="store_true",
