@@ -42,15 +42,22 @@ def save_bookmarks(bookmarks):
         outfile.write(" ".join(bookmarks.keys()))
 
 def hop_to(bookmarks, args):
-    path = bookmarks.get(args.bookmark_name)
+    splitpath = args.bookmark_name.split("/", 1)
+    bookmark = splitpath[0]
+    relative = splitpath[1] if len(splitpath) > 1 else ""
+    path = bookmarks.get(bookmark)
     if path:
-        return (True, path)
+        fullpath = os.path.join(path, relative)
+        return (True, fullpath)
     else:
-        return (False, "No bookmark found named '{0}'".format(args.bookmark_name))
+        return (False, "No bookmark found named '{0}'".format(bookmark))
 
 def hop_add(bookmarks, args):
+    bookmark_name = args.bookmark_name
+    if "/" in bookmark_name:
+        return (False, "Error: bookmark names cannot contain '/'")
     path = os.getcwd()
-    bookmarks[args.bookmark_name] = path
+    bookmarks[bookmark_name] = path
     return (False, "Added bookmark: {0}".format(show_bookmark(args.bookmark_name, path)))
 
 def hop_remove(bookmarks, args):
