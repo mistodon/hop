@@ -47,7 +47,7 @@ def hop_to(bookmarks, args):
     relative = splitpath[1] if len(splitpath) > 1 else ""
     path = bookmarks.get(bookmark)
     if path:
-        fullpath = os.path.join(path, relative)
+        fullpath = correct_path(path, relative)
         return (True, fullpath)
     else:
         return (False, "No bookmark found named '{0}'".format(bookmark))
@@ -79,6 +79,38 @@ def hop_list(bookmarks, args):
         report = "total {0}\n".format(len(filtered))
         report += "\n".join(show_bookmark(bookmark, path) for bookmark, path in filtered)
     return (False, report)
+
+def correct_path(root, relative_path):
+    if not relative_path:
+        return root
+    path = root
+    segments = [s for s in os.path.split(relative_path) if s]
+    while segments:
+        seg = segments.pop(0)
+        choices = next(os.walk(path))[1]
+        best = best_match(seg, choices)
+        path = os.path.join(path, best)
+    return path
+
+def best_match(string, candidates):
+    return sorted(score_candidates(string, candidates))[0][1]
+
+def score_candidates(string, candidates):
+    # This is lame, do it better
+    for candidate in candidates:
+        score = 10
+        if candidate == string:
+            score = 0
+        elif candidate.startswith(string):
+            score = 1
+        elif candidate.endswith(string):
+            score = 2
+        elif string in candidate:
+            score = 3
+        elif string[0] == candidate[0]:
+            score = 4
+        yield (score, candidate)
+
 
 def show_bookmark(bookmark, path):
     return "{0} --> {1}".format(bookmark, path)
