@@ -84,7 +84,7 @@ def correct_path(root, relative_path):
     if not relative_path:
         return root
     path = root
-    segments = [s for s in os.path.split(relative_path) if s]
+    segments = [s for s in relative_path.split("/") if s]
     while segments:
         seg = segments.pop(0)
         choices = next(os.walk(path))[1]
@@ -93,24 +93,41 @@ def correct_path(root, relative_path):
     return path
 
 def best_match(string, candidates):
-    return sorted(score_candidates(string, candidates))[0][1]
+    scored_candidates = sorted(score_candidates(string, candidates))
+    return scored_candidates[0][1]
 
 def score_candidates(string, candidates):
-    # This is lame, do it better
     for candidate in candidates:
-        score = 10
-        if candidate == string:
-            score = 0
-        elif candidate.startswith(string):
-            score = 1
-        elif candidate.endswith(string):
-            score = 2
-        elif string in candidate:
-            score = 3
-        elif string[0] == candidate[0]:
-            score = 4
-        yield (score, candidate)
+        matches = matching_pieces(string, candidate)
+        score = 0.0
+        for match in matches:
+            length = float(match[1] - match[0])
+            score += length
+        yield (-score, candidate)
 
+def matching_pieces(string, candidate):
+    matches = []
+    pos = 0
+    start = -1
+    for j, char in enumerate(candidate):
+        if char == string[pos]:
+            if start == -1:
+                start = j
+            pos += 1
+            if pos > len(string)-1:
+                if start != -1:
+                    match = (start, j)
+                    matches.append(match)
+                break;
+        else:
+            if start != -1:
+                match = (start, j)
+                matches.append(match)
+                start = -1
+    if start != -1:
+        match = (start, len(candidate))
+        matches.append(match)
+    return matches
 
 def show_bookmark(bookmark, path):
     return "{0} --> {1}".format(bookmark, path)
