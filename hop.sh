@@ -82,6 +82,25 @@ function _hop__get_shortnames() {
     _hop_list | grep -oh "^[^:]*" | tr '\n' ' '
 }
 
+function _hop__followup() {
+    type ce 1>/dev/null 2>/dev/null
+    if [ $? -ne 0 ]; then
+        pushd . > /dev/null
+        for arg in "$@"
+        do
+            cd *"$arg"*
+            if [ $? -ne 0 ]; then
+                popd > /dev/null
+                return $?
+            fi
+        done
+        popd -n > /dev/null
+    else
+        ce "$@"
+        return $?
+    fi
+}
+
 function _hop_add() {
     local usage_string="usage: hop add [-h] bookmark_name"
     local bookmark_name=$1
@@ -123,8 +142,9 @@ function _hop_remove() {
 }
 
 function _hop_to() {
-    local usage_string="usage: hop to [-h] bookmark_name"
+    local usage_string="usage: hop to [-h] bookmark_name [subdir...]"
     local bookmark_name=$1
+    shift
     if [ -z "$bookmark_name" ]; then
         echo "$usage_string" 1>&2
         return 1
@@ -136,10 +156,11 @@ function _hop_to() {
     local bookmarks=$(_hop__get_bookmark ${bookmark_name})
     if [ -n "$bookmarks" ]; then
         cd "$bookmarks"
+        if [ $? -eq 0 ]; then
+            _hop__followup "$@"
+        fi
         return $?
     fi
     echo "hop: no bookmark found with name $bookmark_name" 1>&2
     return 1
 }
-
-alias reload="source ~/.profile"
