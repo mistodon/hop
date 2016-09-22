@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HOPDIR=$1
+export HOPFILE=~/.hop/bookmarks
 
 function hop() {
     local commandname="hop"
@@ -69,7 +69,10 @@ function _hop_list() {
         echo "usage: hop list [-h]"
         echo "List all bookmarks"
     else
-        cat ~/.hop/hopp_bookmarks
+        if [ ! -f "$HOPFILE" ]; then
+	    touch $HOPFILE
+	fi
+        cat "$HOPFILE"
     fi
     return $?
 }
@@ -117,7 +120,7 @@ function _hop_add() {
         echo "hop: bookmark '$bookmark_name' already exists" 1>&2
         return 1
     fi
-    echo "${bookmark_name}:`pwd`" >> ~/.hop/hopp_bookmarks
+    echo "${bookmark_name}:`pwd`" >> $HOPFILE
     return 0
 }
 
@@ -132,12 +135,12 @@ function _hop_remove() {
         echo "Remove the bookmark with the given name"
         return 0
     fi
-    sed "/^${bookmark_name}:/ d" ~/.hop/hopp_bookmarks > ~/.hop/hopp_bookmarks_backup
+    sed "/^${bookmark_name}:/ d" $HOPFILE > ${HOPFILE}_backup
     if [ $? -ne 0 ]; then
-        rm ~/.hop/hopp_bookmarks_backup
+        rm ${HOPFILE}_backup
         return 1
     fi
-    mv ~/.hop/hopp_bookmarks_backup ~/.hop/hopp_bookmarks
+    mv ${HOPFILE}_backup $HOPFILE
     return 0
 }
 

@@ -7,10 +7,8 @@ Installation
 Put this repo (the hop folder) in `~/bin` and add the following line to your `.bashrc` or `.bash_profile` or whatever:
 
 ```
-. ~/bin/hop/hop.sh ~/bin/hop
+source ~/bin/hop/hop.sh
 ```
-
-If you put it somewhere else, change the paths in the above line to point to that directory.
 
 Usage
 -----
@@ -29,8 +27,7 @@ This adds a bookmark called `folder` which leads to `path/to/folder`.
 
 ```
 ~$ hop list
-total 1
-folder --> /usr/username/path/to/folder
+folder:/usr/username/path/to/folder
 ```
 
 ### Hop to a folder
@@ -50,6 +47,5 @@ folder --> /usr/username/path/to/folder
 ```
 ~$ hop remove folder
 ~$ hop list
-total 0
-
+~$
 ```
